@@ -1,8 +1,12 @@
+using System.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Data;
+using API.Interfaces;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,7 +16,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using API.Extensions;
 
 namespace API
 {
@@ -23,25 +29,21 @@ namespace API
         public Startup(IConfiguration config)
         {
             _config = config;
-        
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // This is often reffered as our dependency injection container
         public void ConfigureServices(IServiceCollection services)
-        {
+        {   
             // the ordering what we put here is not that important
-            services.AddDbContext<DataContext>(options => 
-            {
-                // we're using lambda expressions here it consists of name, token, body
-                options.UseSqlite(_config.GetConnectionString("DefaultConnection"));  // we add our connection inside our configuration
-            });
+            services.AddApplicationServices(_config);
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIv5", Version = "v1" });
-            });
+            // services.AddSwaggerGen(c =>
+            // {
+            //     c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIv5", Version = "v1" });
+            // });
             services.AddCors();
+            services.AddIdentityServices(_config);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,7 +61,10 @@ namespace API
 
             app.UseRouting();
 
+            // UseCors needs to come before UseAuthentication
             app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
+
+            app.UseAuthentication(); // UseAuthentication needs to come before UseAuthorization
 
             app.UseAuthorization();
 
