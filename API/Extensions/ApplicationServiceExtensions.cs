@@ -11,6 +11,10 @@ namespace API.Extensions
 {
     public static class ApplicationServiceExtensions
     {
+
+
+        // NOTE!! In order to extend e.g the IServiceCollection we need to use the this keyword at parameteres
+        
         public static void AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
             services.AddScoped<ITokenService, TokenService>();
