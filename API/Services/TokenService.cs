@@ -13,8 +13,6 @@ namespace API.Services
 {
     public class TokenService : ITokenService
     {
-        
-
         // SymetricSecurityKey encryption is a type of encryption where only 1 key is used to both encrypt and decrypt
         // electronic information
         private readonly SymmetricSecurityKey _key;
@@ -29,12 +27,11 @@ namespace API.Services
             // adding our claims
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, user.UserName),
+                new Claim(JwtRegisteredClaimNames.NameId, user.UserName)
             };
 
             // creating some credentials
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
 
             // describing how our tokens gonna look
             var tokenDescriptor = new SecurityTokenDescriptor
