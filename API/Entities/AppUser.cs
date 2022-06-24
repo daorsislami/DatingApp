@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Extensions;
 
 namespace API.Entities
 {
@@ -11,5 +12,28 @@ namespace API.Entities
         public string UserName { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public string KnownAs { get; set; }
+        public DateTime Created { get; set; } = DateTime.Now;
+        public DateTime LastActive { get; set; } = DateTime.Now;
+        public string Gender { get; set; }
+        public string Introduction { get; set; }
+        public string LookingFor { get; set; }
+        public string Interests { get; set; }
+        public string City { get; set; }
+        public string Country { get; set; }
+
+        public ICollection<Photo> Photos { get; set; }
+
+
+        // WHAT AUTOMAPPER DOES!!!!
+        // since our method starts with Get and when it comes across mapping this entity to a DTO it will see that there's a method of our entity that starts with Get e.g. GetAge()
+        // so it will see that there is a Get and then it will check to the DTO, to see if we have any other member that has the name as the second part of the method name so Age and if it has return type int(in this case)
+        // and if it finds then it will know automatically and it will match these fields
+        
+        // public int GetAge() 
+        // {
+        //     return DateOfBirth.CalculateAge();
+        // }        
     }
 }
