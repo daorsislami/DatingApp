@@ -3,4 +3,5 @@ export interface User {
     // when we use a Interface in TypeScript we can use it to specify that something is a type of something
     username: string;
     token: string;
+    photoUrl: string;
 }

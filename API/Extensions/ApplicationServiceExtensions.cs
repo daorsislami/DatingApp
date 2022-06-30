@@ -18,7 +18,9 @@ namespace API.Extensions
         
         public static void AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
+            services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IUserRepository, UserRepository>();
             
             // we make use of our AutoMapper, so what it does is that it finds those profiles, the CreateMaps that we created inside AutoMapperProfiles
