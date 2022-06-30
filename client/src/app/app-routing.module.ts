@@ -6,9 +6,11 @@ import { TestErrorsComponent } from './errors/test-errors/test-errors.component'
 import { HomeComponent } from './home/home.component';
 import { ListsComponent } from './lists/lists.component';
 import { MemberDetailComponent } from './members/member-detail/member-detail.component';
+import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { MemberListComponent } from './members/member-list/member-list.component';
 import { MessagesComponent } from './messages/messages.component';
 import { AuthGuard } from './_guards/auth.guard';
+import { PreventUnsavedChangesGuard } from './_guards/prevent-unsaved-changes.guard';
 
 // in this array we'll provide to provide the routes that we tell Angular about
 // each and one of these routes is gonna be an object
@@ -21,10 +23,11 @@ const routes: Routes = [
     runGuardsAndResolvers: 'always',
     canActivate: [AuthGuard],
     children: [
-      {path: 'members', component: MemberListComponent, canActivate: [AuthGuard]}, 
+      {path: 'members', component: MemberListComponent}, 
       {path: 'members/:username', component: MemberDetailComponent}, // /:id each of our members is gonna have a root parameter e.g. member/2
+      {path: 'member/edit', component: MemberEditComponent, canDeactivate: [PreventUnsavedChangesGuard]}, // if we want to user members/edit it's gonna make confusion with the path above because it will now know where to redirect, so we need to use the keyword pathMatch: 'full'
       {path: 'lists', component: ListsComponent}, 
-      {path: 'messages', component: MessagesComponent}, 
+      {path: 'messages', component: MessagesComponent}
     ]
   },
   {path: 'errors', component: TestErrorsComponent},
