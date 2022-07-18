@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.DTOs;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -29,11 +30,35 @@ namespace API.Data
                 .SingleOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<MemberDto>> GetMembersAsync()
+        public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)
         {
-            return await _context.Users
-                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
-                .ToListAsync();
+            var query = _context.Users.AsQueryable();
+            // return all of the users except for the current logged in user
+            query = query.Where(u => u.UserName != userParams.CurrentUsername);
+            
+            // filter based on Gender
+            query = query.Where(u => u.Gender == userParams.Gender);
+
+            // filder by age
+            var minDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);
+            var maxDob = DateTime.Today.AddYears(-userParams.MinAge); 
+
+            query = query.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth <= maxDob);
+
+            // we don't have to add breaks a new switch version
+            // clean and nice syntax
+            query = userParams.OrderBy switch
+            {
+                "created" => query.OrderByDescending(u => u.Created),
+                _ => query.OrderByDescending(u => u.LastActive) // the way we specify defaults in this switch statement is by underscore (_)
+            };
+            // when we get entities using EntityFrameworkCore, EFC applies tracking to these entities
+            // since we do not do anything we disable that and the query will be more efficient
+            
+            return await PagedList<MemberDto>.CreateAsync(
+                query.ProjectTo<MemberDto>(_mapper.ConfigurationProvider).AsNoTracking(), 
+                userParams.PageNumber, userParams.PageSize
+            );
         }
 
         public async Task<AppUser> GetUserByIdAsync(int id)

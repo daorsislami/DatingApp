@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API.Extensions;
+using API.Helpers;
 
 namespace API.Controllers
 {   
@@ -30,12 +31,26 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
+        // if we have parameters from query (query strings) then we need to specify [FromQuery] keyword
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
         {
+            var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
+            userParams.CurrentUsername = user.UserName;
+            
+            if(string.IsNullOrEmpty(userParams.Gender))
+                userParams.Gender = user.Gender == "male" ? "female" : "male";
+                
             // IEnumerable allows us to use simple iteration over a collection of a specified type
             // we could use a List but List has more methods that we are not going to use here, we'll just iterate and get them
             // so we use a IEnumerable
-            return Ok(await _userRepository.GetMembersAsync());
+            var users = await _userRepository.GetMembersAsync(userParams);
+            
+            // in our controllers we always have access to the HTTP request response stuff inside here
+            // AddPaginationHeader is the extension method that we've added
+            Response.AddPaginationHeader(users.CurrentPage, users.PageSize, 
+                users.TotalCount, users.TotalPages);
+
+            return Ok(users);
         }
 
         // api/users/floyd

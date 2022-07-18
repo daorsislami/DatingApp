@@ -22,6 +22,7 @@ namespace API.Extensions
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<LogUserActivity>();
             
             // we make use of our AutoMapper, so what it does is that it finds those profiles, the CreateMaps that we created inside AutoMapperProfiles
             // now to use this go into UsersController to see how we can make use of it, obv we use of DI for the mapper
